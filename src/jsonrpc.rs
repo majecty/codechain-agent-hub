@@ -4,10 +4,11 @@ use jsonrpc_core::types::{Call, Error as JSONRPCError, ErrorCode, Failure, Id, M
 use serde_json;
 use serde_json::Value;
 
-use super::router::{Error as RouterError};
+use super::router::Error as RouterError;
 
-pub fn handle<F>(router: F, text: String) -> Option<String> where
-    F: FnOnce(String, Value) -> Result<Option<Value>, RouterError> {
+pub fn handle<F>(router: F, text: String) -> Option<String>
+where
+    F: FnOnce(String, Value) -> Result<Option<Value>, RouterError>, {
     let deserialized = serde_json::from_str(&text);
     let response: Option<Response> = match deserialized {
         Err(_) => Some(

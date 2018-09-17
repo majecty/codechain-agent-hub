@@ -32,4 +32,3 @@ impl From<SerdeError> for RPCError {
         RPCError::Internal(format!("Internal error about JSON serialize/deserialize : {:?}", err))
     }
 }
-

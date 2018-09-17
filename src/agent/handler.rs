@@ -24,7 +24,9 @@ impl Handler for WebSocketHandler {
         ctrace!("The number of live connections is {}", self.count.get());
 
         let response: Option<String> = match msg {
-            Message::Text(text) => jsonrpc::handle(|method, arg| self.router.run(&method, arg), text),
+            Message::Text(text) => jsonrpc::handle(|method, arg| {
+                self.router.run(&method, arg)
+            }, text),
             _ => Some(jsonrpc::invalid_format()),
         };
 

@@ -1,5 +1,5 @@
 use super::super::router::Router;
-use super::super::rpc::{RPCResult, response};
+use super::super::rpc::{response, RPCResult};
 use super::types::{
     BlockId, DashboardGetNetworkResponse, DashboardNode, HardwareInfo, HardwareUsage, NetworkPermission,
     NodeConnection, NodeGetInfoResponse, NodeStatus, NodeVersion,
