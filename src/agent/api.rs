@@ -1,20 +1,18 @@
-use super::super::router::Router;
-use super::super::rpc::{RPCResult, response};
-
+use super::super::jsonrpc;
+use super::super::rpc::{response, RPCResult};
 use super::types::ShellStartCodeChainRequest;
 
-pub fn add_routing(router: &mut Router) {
-    router.add_route("ping", Box::new(ping as fn() -> RPCResult<String>));
-    router.add_route(
-        "shell_startCodeChain",
-        Box::new(shell_start_codechain as fn(req: ShellStartCodeChainRequest) -> RPCResult<()>),
-    );
+pub struct Agent {
+    jsonrpc_context: jsonrpc::Context,
 }
 
-fn ping() -> RPCResult<String> {
-    response("pong".to_string())
+trait SendAgentRPC {
+    fn shell_start_codechain(&self, _req: ShellStartCodeChainRequest) -> RPCResult<()>;
 }
 
-fn shell_start_codechain(_req: ShellStartCodeChainRequest) -> RPCResult<()> {
-    response(())
+impl SendAgentRPC for Agent {
+    fn shell_start_codechain(&self, req: ShellStartCodeChainRequest) -> RPCResult<()> {
+        let _result: Result<(), _> = jsonrpc::call(self.jsonrpc_context.clone(), "shell_startCodeChain", req);
+        response(())
+    }
 }

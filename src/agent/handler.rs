@@ -1,16 +1,22 @@
 use std::cell::Cell;
+use std::collections::HashMap;
+use std::net::SocketAddr;
 use std::rc::Rc;
 use std::sync::Arc;
+use std::sync::Mutex;
 
-use ws::{CloseCode, Error as WSError, Handler, Handshake, Message, Result, Sender};
+use ws::{CloseCode, Error as WSError, Handler, Handshake, Message, Result, Sender as WSSender};
 
 use super::super::jsonrpc;
 use super::super::router::Router;
+use super::api::Agent;
 
 pub struct WebSocketHandler {
-    pub out: Sender,
+    pub out: WSSender,
     pub count: Rc<Cell<u32>>,
     pub router: Arc<Router>,
+    pub agents: Arc<Mutex<HashMap<SocketAddr, Agent>>>,
+    pub agent: Agent,
 }
 
 impl Handler for WebSocketHandler {
@@ -24,9 +30,7 @@ impl Handler for WebSocketHandler {
         ctrace!("The number of live connections is {}", self.count.get());
 
         let response: Option<String> = match msg {
-            Message::Text(text) => jsonrpc::handle(|method, arg| {
-                self.router.run(&method, arg)
-            }, text),
+            Message::Text(text) => jsonrpc::handle(|method, arg| self.router.run(&method, arg), text),
             _ => Some(jsonrpc::invalid_format()),
         };
 
