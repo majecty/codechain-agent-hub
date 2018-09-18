@@ -1,6 +1,9 @@
+use std::net::SocketAddr;
+
+use super::super::agent::agent::SendAgentRPC;
 use super::super::common_rpc_types::{NodeStatus, ShellStartCodeChainRequest};
 use super::super::router::Router;
-use super::super::rpc::{response, RPCResponse};
+use super::super::rpc::{response, RPCError, RPCResponse};
 use super::types::{
     BlockId, Context, DashboardGetNetworkResponse, DashboardNode, HardwareInfo, HardwareUsage, NetworkPermission,
     NodeConnection, NodeGetInfoResponse, NodeVersion,
@@ -19,7 +22,7 @@ pub fn add_routing(router: &mut Router<Context>) {
     );
     router.add_route(
         "shell_startCodeChain",
-        Box::new(shell_start_codechain as fn(Context) -> RPCResponse<DashboardGetNetworkResponse>),
+        Box::new(shell_start_codechain as fn(Context, (SocketAddr, ShellStartCodeChainRequest)) -> RPCResponse<()>),
     )
 }
 
@@ -141,4 +144,17 @@ fn node_get_info(_: Context) -> RPCResponse<NodeGetInfoResponse> {
         },
         events: vec!["Network connected".to_string(), "Block received".to_string()],
     })
+}
+
+fn shell_start_codechain(context: Context, args: (SocketAddr, ShellStartCodeChainRequest)) -> RPCResponse<()> {
+    let (address, req) = args;
+
+    let agent = context.agent_service.get_agent(address);
+    if agent.is_none() {
+        return Err(RPCError::AgentNotFound)
+    }
+    let agent = agent.expect("Already checked");
+    agent.shell_start_codechain(req)?;
+
+    response(())
 }
