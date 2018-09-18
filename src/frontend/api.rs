@@ -1,4 +1,4 @@
-use super::super::common_rpc_types::NodeStatus;
+use super::super::common_rpc_types::{NodeStatus, ShellStartCodeChainRequest};
 use super::super::router::Router;
 use super::super::rpc::{response, RPCResponse};
 use super::types::{
@@ -17,6 +17,10 @@ pub fn add_routing(router: &mut Router<Context>) {
         "real_dashboard_getNetwork",
         Box::new(real_dashboard_get_network as fn(Context) -> RPCResponse<DashboardGetNetworkResponse>),
     );
+    router.add_route(
+        "shell_startCodeChain",
+        Box::new(shell_start_codechain as fn(Context) -> RPCResponse<DashboardGetNetworkResponse>),
+    )
 }
 
 fn ping(_: Context) -> RPCResponse<String> {
