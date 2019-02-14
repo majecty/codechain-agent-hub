@@ -91,3 +91,19 @@ pub struct StructuredLog {
     pub timestamp: String,
     pub thread_name: String,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[serde(tag = "type")]
+pub enum UpdateCodeChainRequest {
+    #[serde(rename_all = "camelCase")]
+    Git {
+        commit_hash: String,
+    },
+    #[serde(rename_all = "camelCase")]
+    Binary {
+        #[serde(rename = "binaryURL")]
+        binary_url: String,
+        binary_checksum: String,
+    }
+}
